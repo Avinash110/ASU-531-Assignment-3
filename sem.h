@@ -4,16 +4,16 @@
 #include "threads.h"
 
 typedef struct semaphore_t {
-     pthread_mutex_t mutex;
-     pthread_cond_t cond;
+     queue *mutex_queue;
      int count;
 } semaphore_t;
 
-void init_sem(semaphore_t *s, int i)
-{   
+semaphore_t CreateSem(int i)
+{
+    semaphore_t *s = (semaphore_t *)(malloc(sizeof(struct semaphore_t))); 
     s->count = i;
-    pthread_mutex_init(&(s->mutex), NULL);
-    pthread_cond_init(&(s->cond), NULL);
+    s->mutex_queue = newQueue();
+    return *s;
 }
 
 
@@ -23,10 +23,15 @@ void init_sem(semaphore_t *s, int i)
  */
 void P(semaphore_t *sem)
 {   
-    pthread_mutex_lock (&(sem->mutex)); 
+    // pthread_mutex_lock (&(sem->mutex)); 
     sem->count--;
-    if (sem->count < 0) pthread_cond_wait(&(sem->cond), &(sem->mutex));
-    pthread_mutex_unlock (&(sem->mutex)); 
+    if (sem->count < 0){
+        TCB_t *Prev_Thread;
+        AddQueue(sem->mutex_queue, Curr_Thread);
+        Prev_Thread = Curr_Thread;
+        Curr_Thread = DelQueue(ReadyQ);
+        swapcontext(&(Prev_Thread->context), &(Curr_Thread->context));
+    }
 }
 
 
@@ -37,13 +42,9 @@ void P(semaphore_t *sem)
 
 void V(semaphore_t * sem)
 {   
-    pthread_mutex_lock (&(sem->mutex)); 
     sem->count++;
     if (sem->count <= 0) {
-	pthread_cond_signal(&(sem->cond));
+        AddQueue(ReadyQ, DelQueue(sem->mutex_queue));
     }
-    pthread_mutex_unlock (&(sem->mutex)); 
-    pthread_yield();
+    yield();
 }
-
-
