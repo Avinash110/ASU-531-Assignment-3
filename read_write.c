@@ -1,6 +1,14 @@
 // (c) Partha Dasgupta 2009
 // permission to use and distribute granted.
 
+/*
+ * Project members
+ *  
+ * Name: Ankit Rai        - 1217088301 
+ * Name: Avinash Bhojwani - 1217145904
+ * 
+ *  
+*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -92,10 +100,10 @@ void writer(void)
   P(&mutex); ID = global_ID++; V(&mutex);
   while(1){
  	writer_entry(ID);
-	printf
-	    ("\t\t\t\t[writer: #%d]\t&&&WRITING!&&&\n", ID);
+	printf("\t\t\t\t[writer: #%d]\t&&&WRITING!&&&\n", ID);
 	sleep(1);
 	writer_exit(ID);
+	printf("\t\t\t\t[writer: #%d]\tExiting\n", ID);
   };
 }
 

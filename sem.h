@@ -26,9 +26,8 @@ void P(semaphore_t *sem)
     // pthread_mutex_lock (&(sem->mutex)); 
     sem->count--;
     if (sem->count < 0){
-        TCB_t *Prev_Thread;
         AddQueue(sem->mutex_queue, Curr_Thread);
-        Prev_Thread = Curr_Thread;
+        TCB_t *Prev_Thread = Curr_Thread;
         Curr_Thread = DelQueue(ReadyQ);
         swapcontext(&(Prev_Thread->context), &(Curr_Thread->context));
     }
